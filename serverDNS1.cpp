@@ -29,7 +29,7 @@ int main(int argc , char *argv[])
     char *mensaje;
      
     //Crea un socket
-    socket_desc = socket(AF_INET , SOCK_STREAM , 0);
+    socket_desc = socket(AF_INET , SOCK_STREAM , IPPROTO_TCP);
     if (socket_desc == -1)
     {
         printf("No se pudo crear el socket");
