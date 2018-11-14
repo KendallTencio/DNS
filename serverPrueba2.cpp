@@ -5,16 +5,14 @@
 #include<stdio.h>
 #include<string.h>    
 #include<stdlib.h>    
-#include<sys/socket.h>
-#include<arpa/inet.h> //Para usar el inet_addr
-#include<unistd.h>    //escribir
- 
-#include<pthread.h> //Para los hilos , hay que enlazar el lpthread
+#include<sys/socket.h>	  
+#include<arpa/inet.h>   //Para usar el inet_addr
+#include<unistd.h>      //escribir						   	
+#include<pthread.h>     //Para los hilos , hay que enlazar el lpthread
 
 using namespace std;
 /*
 Para cargar servidor:
-
 $ gcc serverResponde.c -o serverResponde -lpthread
 $ ./serverResponde
 */
@@ -92,12 +90,12 @@ int main(int argc , char *argv[])
 	
 	if(read_size == 0)
 	{
-		puts("Client disconnected");
+		puts("Cliente desconectado");
 		fflush(stdout);
 	}
 	else if(read_size == -1)
 	{
-		perror("recv failed");
+		perror("recv fallo");
 	}
 	
 	return 0;
@@ -106,7 +104,7 @@ int main(int argc , char *argv[])
 char* directionFinder(char msg[])
 {
 	char* wordList1[]=		 {"GoogleMaps.com\n","ICE.com\n","Instagram.com\n"};
-	char* wordAntonymList1[]={"111.11.111\n","666.666.666\n","777.777.77.7\n"};
+	char* wordAntonymList1[]={"111.11.111\n","666.666.666\n","777.777.77\n"};
 	char* wordAntonym="No existe\n";
 	for (int i = 0;i<3;i++)
 	{
@@ -123,48 +121,48 @@ int irASiguienteServer(){
 	struct sockaddr_in server;
 	char message[1000] , server_reply[2000];
 	
-	//Create socket
+	//Crear socket
 	sock = socket(AF_INET , SOCK_STREAM , 0);
 	if (sock == -1)
 	{
-		printf("Could not create socket");
+		printf("No se pudo crear el socket");
 	}
-	puts("Socket created");
+	puts("Socket creado");
 	
 	server.sin_addr.s_addr = inet_addr("127.0.0.1");
 	server.sin_family = AF_INET;
 	server.sin_port = htons( 8880 );
 
-	//Connect to remote server
+	//Conectarse al servidor remoto
 	if (connect(sock , (struct sockaddr *)&server , sizeof(server)) < 0)
 	{
-		perror("connect failed. Error");
+		perror("La conexion fallo. Error");
 		return 1;
 	}
 	
-	puts("Connected\n");
+	puts("Conectado\n");
 	
-	//keep communicating with server
+	//Mantenerse conectado con el servidor
 	while(1)
 	{
-		printf("Enter message : ");
+		printf("EIntroduzca el mensaje : ");
 		scanf("%s" , message);
 		
-		//Send some data
+		//Enviar el mensaje
 		if( send(sock , message , strlen(message) , 0) < 0)
 		{
-			puts("Send failed");
+			puts("Fallo el envio");
 			return 1;
 		}
 		
-		//Receive a reply from the server
+		//Obtener la respuesta del servidor
 		if( recv(sock , server_reply , 2000 , 0) < 0)
 		{
-			puts("recv failed");
+			puts("recv fallo");
 			break;
 		}
 		
-		puts("Server reply :");
+		puts("Respuesta del server :");
 		puts(server_reply);
 	}
 	

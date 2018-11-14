@@ -22,7 +22,7 @@ $ ./serverResponde
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 char* directionFinder(char msg[]);
-int irASiguienteServer();
+char* irASiguienteServer(char message[]);
 
 int main(int argc , char *argv[])
 {
@@ -32,43 +32,42 @@ int main(int argc , char *argv[])
 	char client_message[2000];
 	
 	
-	//Create socket
+	//Crear socket
 	socket_desc = socket(AF_INET , SOCK_STREAM , 0);
 	if (socket_desc == -1)
 	{
-		printf("Could not create socket");
+		printf("No se pudo crear el socket");
 	}
-	puts("Socket created");
+	puts("Socket creado");
 	
-	//Prepare the sockaddr_in structure
+	//Preparar la estructura del sockaddr_in
 	server.sin_family = AF_INET;
 	server.sin_addr.s_addr = INADDR_ANY;
-	server.sin_port = htons( 8888 );
+	server.sin_port = htons( 9991 );
 	
-	//Bind
+	//Hacer el Bind
 	if( bind(socket_desc,(struct sockaddr *)&server , sizeof(server)) < 0)
 	{
-		//print the error message
-		perror("bind failed. Error");
+		perror("bind fallo. Error");
 		return 1;
 	}
-	puts("bind done");
+	puts("bind hecho");
 	
-	//Listen
+	//"Listen" a un socket
 	listen(socket_desc , 3);
 	
-	//Accept and incoming connection
-	puts("Waiting for incoming connections...");
+	//Aceptar conexiones entrantes
+	puts("Esperando por conexiones entrantes...");
 	c = sizeof(struct sockaddr_in);
 	
-	//accept connection from an incoming client
+	//Aceptar la conexión de un cliente 
 	client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
 	if (client_sock < 0)
 	{
-		perror("accept failed");
+		perror("Conexion fallida");
 		return 1;
 	}
-	puts("Connection accepted");
+	puts("Conexion aceptada");
 	
 	    //Recibe mensajes del cliente
     while( (read_size = recv(client_sock , client_message, 2000 , 0)) > 0 )
@@ -76,7 +75,7 @@ int main(int argc , char *argv[])
 		if(directionFinder(client_message) != compareNoExiste)
 		{
 			write(client_sock ,directionFinder(client_message) , strlen(directionFinder(client_message)));	
-            puts("Encontrado");
+            puts("IP encontrado");
             
 	    }
 	    else
@@ -85,18 +84,19 @@ int main(int argc , char *argv[])
             puts("Redirigiendo...");
 			write(client_sock , "Me voy a otro servidor", strlen("Me voy a otro servidor"));
 			
-			irASiguienteServer();
+			char* ipEncontradaEnOtro = irASiguienteServer(client_message);
+			write(client_sock , ipEncontradaEnOtro, strlen(ipEncontradaEnOtro));
 		}    
     }
 	
 	if(read_size == 0)
 	{
-		puts("Client disconnected");
+		puts("Cliente desconectado");
 		fflush(stdout);
 	}
 	else if(read_size == -1)
 	{
-		perror("recv failed");
+		perror("recv fallida");
 	}
 	
 	return 0;
@@ -117,46 +117,44 @@ char* directionFinder(char msg[])
 	return wordAntonym;
 }
 
-int irASiguienteServer(){
+char* irASiguienteServer(char message[]){
 	int sock;
 	struct sockaddr_in server;
-	char message[1000] , server_reply[2000];
+	char server_reply[2000];
+	char* replyReturn;
 	
-	//Create socket
+	//Crear el socket
 	sock = socket(AF_INET , SOCK_STREAM , 0);
 	if (sock == -1)
 	{
-		printf("Could not create socket");
+		printf("No se pudo crear socket");
 	}
-	puts("Socket created");
+	puts("Socket creado");
 	
 	server.sin_addr.s_addr = inet_addr("127.0.0.1");
 	server.sin_family = AF_INET;
 	server.sin_port = htons( 8889 );
 
-	//Connect to remote server
+	//Conextar a servidor remoto
 	if (connect(sock , (struct sockaddr *)&server , sizeof(server)) < 0)
 	{
-		perror("connect failed. Error");
-		return 1;
+		perror("Fallo la conexion. Error");
+		return "";
 	}
 	
-	puts("Connected\n");
-	
-	//keep communicating with server
-	while(1)
+	puts("Conectado\n");
+	int x = 1;
+	//Mantiene la comunicación con el servidor
+	while(x == 1)
 	{
-		printf("Enter message : ");
-		scanf("%s" , message);
-		
-		//Send some data
+		//Envía el mensaje
 		if( send(sock , message , strlen(message) , 0) < 0)
 		{
 			puts("Send failed");
-			return 1;
+			return "";
 		}
 		
-		//Receive a reply from the server
+		//Recibe una respuesta del servidor
 		if( recv(sock , server_reply , 2000 , 0) < 0)
 		{
 			puts("recv failed");
@@ -165,8 +163,10 @@ int irASiguienteServer(){
 		
 		puts("Server reply :");
 		puts(server_reply);
+		x = 0;
+		replyReturn = server_reply;
 	}
 	
 	close(sock);	
-	return 0;
+	return replyReturn;
 }
