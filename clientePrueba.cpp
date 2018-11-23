@@ -20,9 +20,9 @@ int main(int argc , char *argv[])
 	sock = socket(AF_INET , SOCK_STREAM , 0);
 	if (sock == -1)
 	{
-		printf("Could not create socket");
+		printf("No se pudo crear el socket");
 	}
-	puts("Socket created");
+	puts("Socket creado");
 	
 	server.sin_addr.s_addr = inet_addr("127.0.0.1");
 	server.sin_family = AF_INET;
@@ -31,16 +31,16 @@ int main(int argc , char *argv[])
 	//Connect to remote server
 	if (connect(sock , (struct sockaddr *)&server , sizeof(server)) < 0)
 	{
-		perror("connect failed. Error");
+		perror("Fallo en la conexion. Error");
 		return 1;
 	}
 	
-	puts("Connected\n");
+	puts("Conectado\n");
 	
 	//keep communicating with server
 	while(1)
 	{
-		printf("Enter message : ");
+		printf("Introduzca mensaje : ");
 		scanf("%s" , message);
 		
 		//Send some data

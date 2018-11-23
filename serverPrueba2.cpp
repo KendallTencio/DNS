@@ -2,8 +2,8 @@
 	C socket server example
 */
 
-#include<stdio.h>
-#include<string.h>    
+#include<stdio.h>  
+#include<string.h>
 #include<stdlib.h>    
 #include<sys/socket.h>	  
 #include<arpa/inet.h>   //Para usar el inet_addr
@@ -29,14 +29,13 @@ int main(int argc , char *argv[])
 	char* compareNoExiste = "No existe\n";
 	char client_message[2000];
 	
-	
-	//Create socket
-	socket_desc = socket(AF_INET , SOCK_STREAM , 0);
-	if (socket_desc == -1)
-	{
-		printf("Could not create socket");
-	}
-	puts("Socket created");
+		//Create socket
+		socket_desc = socket(AF_INET , SOCK_STREAM , 0);
+		if (socket_desc == -1)
+		{
+			printf("Could not create socket");
+		}
+		puts("Socket created");
 	
 	//Prepare the sockaddr_in structure
 	server.sin_family = AF_INET;
@@ -55,55 +54,54 @@ int main(int argc , char *argv[])
 	//Listen
 	listen(socket_desc , 3);
 	
-	//Accept and incoming connection
-	puts("Waiting for incoming connections...");
-	c = sizeof(struct sockaddr_in);
-	
-	//accept connection from an incoming client
-	client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
-	if (client_sock < 0)
+	while(1)
 	{
-		perror("accept failed");
-		return 1;
-	}
-	puts("Connection accepted");
+		//Accept and incoming connection
+		puts("Waiting for incoming connections...");
+		c = sizeof(struct sockaddr_in);
 	
-	    //Recibe mensajes del cliente
-    while( (read_size = recv(client_sock , client_message, 2000 , 0)) > 0 )
-    {	
-		if(directionFinder(client_message) != compareNoExiste)
+		//accept connection from an incoming client
+		client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
+		if (client_sock < 0)
 		{
-			write(client_sock ,directionFinder(client_message) , strlen(directionFinder(client_message)));	
-            puts("Encontrado");
-            
-	    }
-	    else
-	    {
-            //Aquí debería crearse el socket a otro servidor
-            puts("Redirigiendo...");
-			write(client_sock , "Me voy a otro servidor", strlen("Me voy a otro servidor"));
-			
-			irASiguienteServer();
-		}    
-    }
+			perror("accept failed");
+			return 1;
+		}
+		puts("Connection accepted");
 	
+		//Recibe mensajes del cliente
+		while( (read_size = recv(client_sock , client_message, 2000 , 0)) > 0 )
+		{	
+			if(directionFinder(client_message) != compareNoExiste)
+			{
+				write(client_sock ,directionFinder(client_message) , strlen(directionFinder(client_message)));	
+				puts("Encontrado");       
+			}
+			else
+			{
+				//Aquí debería crearse el socket a otro servidor
+				puts("Redirigiendo...");
+				write(client_sock , "Me voy a otro servidor", strlen("Me voy a otro servidor"));
+				irASiguienteServer();
+			}    
+		}
 	
-	if(read_size == 0)
-	{
-		puts("Cliente desconectado");
-		fflush(stdout);
+		if(read_size == 0)
+		{
+			puts("Cliente desconectado");
+			fflush(stdout);
+		}
+		else if(read_size == -1)
+		{
+			perror("recv fallo");
+		}
 	}
-	else if(read_size == -1)
-	{
-		perror("recv fallo");
-	}
-	
 	return 0;
 }
 
 char* directionFinder(char msg[])
 {
-	char* wordList1[]=		 {"GoogleMaps.com\n","ICE.com\n","Instagram.com\n"};
+	char* wordList1[]=		 {"Estructuras.com\n","Repretel.com\n","Instagram.com\n"};
 	char* wordAntonymList1[]={"111.11.111\n","666.666.666\n","777.777.77\n"};
 	char* wordAntonym="No existe\n";
 	for (int i = 0;i<3;i++)

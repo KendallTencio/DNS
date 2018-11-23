@@ -8,6 +8,7 @@
 #include<sys/socket.h>
 #include<arpa/inet.h> //Para usar el inet_addr
 #include<unistd.h>    //escribir
+#include"SplayTree.cpp"
  
 #include<pthread.h> //Para los hilos , hay que enlazar el lpthread
 
@@ -23,6 +24,7 @@ $ ./serverResponde
 #pragma GCC diagnostic ignored "-Wunused-variable"
 char* directionFinder(char msg[]);
 char* irASiguienteServer(char message[]);
+char* splayTreeFinder(char msg[]);
 
 int main(int argc , char *argv[])
 {
@@ -56,49 +58,51 @@ int main(int argc , char *argv[])
 	//"Listen" a un socket
 	listen(socket_desc , 3);
 	
-	//Aceptar conexiones entrantes
-	puts("Esperando por conexiones entrantes...");
-	c = sizeof(struct sockaddr_in);
+	while(1)
+	{	
+		//Aceptar conexiones entrantes
+		puts("Esperando por conexiones entrantes...");
+		c = sizeof(struct sockaddr_in);
 	
-	//Aceptar la conexión de un cliente 
-	client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
-	if (client_sock < 0)
-	{
+		//Aceptar la conexión de un cliente 
+		client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
+		if (client_sock < 0)
+		{
 		perror("Conexion fallida");
 		return 1;
-	}
-	puts("Conexion aceptada");
-	
-	    //Recibe mensajes del cliente
-    while( (read_size = recv(client_sock , client_message, 2000 , 0)) > 0 )
-    {	
-		if(directionFinder(client_message) != compareNoExiste)
-		{
-			write(client_sock ,directionFinder(client_message) , strlen(directionFinder(client_message)));	
-            puts("IP encontrado");
-            
-	    }
-	    else
-	    {
-            //Aquí debería crearse el socket a otro servidor
-            puts("Redirigiendo...");
-			write(client_sock , "Me voy a otro servidor", strlen("Me voy a otro servidor"));
+		}
+		puts("Conexion aceptada");
+
+		//Recibe mensajes del cliente
+		while( (read_size = recv(client_sock , client_message, 2000 , 0)) > 0 )
+		{	
+			if(directionFinder(client_message) != compareNoExiste)
+			{
+				write(client_sock ,splayTreeFinder(client_message) , strlen(splayTreeFinder(client_message)));	
+				puts("IP encontrado");
+			}
+			else
+			{
+				//Aquí debería crearse el socket a otro servidor
+				puts("Redirigiendo...");
+				//write(client_sock , "Me voy a otro servidor", strlen("Me voy a otro servidor"));
 			
-			char* ipEncontradaEnOtro = irASiguienteServer(client_message);
-			write(client_sock , ipEncontradaEnOtro, strlen(ipEncontradaEnOtro));
-		}    
-    }
+				char* ipEncontradaEnOtro = irASiguienteServer(client_message);
+				puts("Redireccionando de regreso...");
+				write(client_sock , ipEncontradaEnOtro, strlen(ipEncontradaEnOtro));
+			}    
+		}
 	
-	if(read_size == 0)
-	{
-		puts("Cliente desconectado");
-		fflush(stdout);
+		if(read_size == 0)
+		{
+			puts("Cliente desconectado");
+			fflush(stdout);
+		}
+		else if(read_size == -1)
+		{
+			perror("recv fallida");
+		}
 	}
-	else if(read_size == -1)
-	{
-		perror("recv fallida");
-	}
-	
 	return 0;
 }
 
@@ -109,10 +113,36 @@ char* directionFinder(char msg[])
 	char* wordAntonym="No existe\n";
 	for (int i = 0;i<3;i++)
 	{
-		if(*msg==*wordList1[i])
+		if(*msg == *wordList1[i])
 			wordAntonym=wordAntonymList1[i];
-		if(*msg==*wordAntonymList1[i])
+		if(*msg == *wordAntonymList1[i])
 			wordAntonym=wordList1[i];
+	}
+	return wordAntonym;
+}
+
+char* splayTreeFinder(char msg[])
+{
+	char const* nombreRecibido = msg;
+	char* wordAntonym="No existe\n";
+	struct Nodo *raiz=NULL;
+	//char llave[] = "facebook.com";
+	raiz=insertar(raiz, 1, "youtube.com", "1");
+	raiz=insertar(raiz, 2, "facebook.com", "2");
+	raiz=insertar(raiz, 3, "google.com","3");
+	raiz=insertar(raiz, 4, "myspace.com","4");
+	raiz=insertar(raiz, 5, "instagram.com","5");
+	raiz=buscar(raiz,1);
+	cout<<raiz->nombre;
+	cout<<nombreRecibido;
+	if (raiz->nombre[1]==nombreRecibido[1]){
+		printf("¡Encontrado!");
+		wordAntonym = raiz->llaveChar;
+	}
+	else{
+		printf("%s\n",raiz->nombre);
+		printf("Esa llave no existe\n");
+		wordAntonym="No existe\n";
 	}
 	return wordAntonym;
 }
@@ -150,18 +180,18 @@ char* irASiguienteServer(char message[]){
 		//Envía el mensaje
 		if( send(sock , message , strlen(message) , 0) < 0)
 		{
-			puts("Send failed");
+			puts("Fallo envio");
 			return "";
 		}
 		
 		//Recibe una respuesta del servidor
 		if( recv(sock , server_reply , 2000 , 0) < 0)
 		{
-			puts("recv failed");
+			puts("Fallo recv");
 			break;
 		}
 		
-		puts("Server reply :");
+		//puts("Server reply :");
 		puts(server_reply);
 		x = 0;
 		replyReturn = server_reply;
