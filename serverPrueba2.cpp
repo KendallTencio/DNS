@@ -9,6 +9,7 @@
 #include<arpa/inet.h>   //Para usar el inet_addr
 #include<unistd.h>      //escribir						   	
 #include<pthread.h>     //Para los hilos , hay que enlazar el lpthread
+#include"SplayTree.cpp"
 
 using namespace std;
 /*
@@ -74,7 +75,7 @@ int main(int argc , char *argv[])
 		{	
 			if(directionFinder(client_message) != compareNoExiste)
 			{
-				write(client_sock ,directionFinder(client_message) , strlen(directionFinder(client_message)));	
+				write(client_sock ,splayTreeFinder(client_message) , strlen(splayTreeFinder(client_message)));	
 				puts("Encontrado");       
 			}
 			else
@@ -110,6 +111,30 @@ char* directionFinder(char msg[])
 			wordAntonym=wordAntonymList1[i];
 		if(*msg==*wordAntonymList1[i])
 			wordAntonym=wordList1[i];
+	}
+	return wordAntonym;
+}
+
+char* splayTreeFinder(char msg[])
+{
+	const char* nombreRecibido = msg;
+	const char* nombre1 = "myspace.com";
+	const char* nombre2 = "instagram.com";
+	char* wordAntonym="No existe\n";
+	struct Nodo *raiz=NULL;
+	//char llave[] = "facebook.com";
+	raiz=insertar(raiz, 4, nombre1,"4");
+	raiz=insertar(raiz, 5, nombre2,"5");
+	raiz=buscar(raiz,1);
+
+	if (strcmp(raiz->nombre,nombreRecibido) == 0){
+		cout<<"¡Encontrado!"<<endl;
+		wordAntonym = raiz->llaveChar;
+	}
+	else{
+		cout<<raiz->nombre<<endl;
+		cout<<"Esa llave no existe\n"<<endl;
+		wordAntonym="No existe\n";
 	}
 	return wordAntonym;
 }

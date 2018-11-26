@@ -123,25 +123,29 @@ char* directionFinder(char msg[])
 
 char* splayTreeFinder(char msg[])
 {
-	char const* nombreRecibido = msg;
+	const char* nombreRecibido = msg;
 	char* wordAntonym="No existe\n";
+	const char* nombre1 = "youtube.com";
+	const char* nombre2 = "faceboook.com";
+	const char* nombre3 = "google.com";
 	struct Nodo *raiz=NULL;
 	//char llave[] = "facebook.com";
-	raiz=insertar(raiz, 1, "youtube.com", "1");
-	raiz=insertar(raiz, 2, "facebook.com", "2");
-	raiz=insertar(raiz, 3, "google.com","3");
-	raiz=insertar(raiz, 4, "myspace.com","4");
-	raiz=insertar(raiz, 5, "instagram.com","5");
+	raiz=insertar(raiz, 1, nombre1, "1");
+	raiz=insertar(raiz, 2, nombre2, "2");
+	raiz=insertar(raiz, 3, nombre3, "3");
+
 	raiz=buscar(raiz,1);
-	cout<<raiz->nombre;
-	cout<<nombreRecibido;
-	if (raiz->nombre[1]==nombreRecibido[1]){
-		printf("¡Encontrado!");
+	
+	cout<<raiz->nombre<<endl;
+	cout<<nombreRecibido<<endl;
+	
+	if (strcmp(raiz->nombre,nombreRecibido) == 0){
+		cout<<"¡Encontrado!"<<endl;
 		wordAntonym = raiz->llaveChar;
 	}
 	else{
-		printf("%s\n",raiz->nombre);
-		printf("Esa llave no existe\n");
+		cout<<raiz->nombre<<endl;
+		cout<<"Esa llave no existe\n"<<endl;
 		wordAntonym="No existe\n";
 	}
 	return wordAntonym;

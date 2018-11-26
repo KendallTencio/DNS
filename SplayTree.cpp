@@ -13,7 +13,7 @@ struct Nodo{
     struct Nodo *nodo_derecho;
 };
 
-struct Nodo* nuevoNodo(int llave_insertar,char const nombre_plataforma[20], char* llave_char){
+struct Nodo* nuevoNodo(int llave_insertar,const char nombre_plataforma[20], char* llave_char){
 	struct Nodo* nodo = (struct Nodo*)malloc(sizeof(struct Nodo));
    	nodo->llave= llave_insertar;
    	nodo->llaveChar = llave_char;
@@ -104,7 +104,7 @@ struct Nodo *splay(struct Nodo *raiz, int llave_insertar){
 /* Funcion para insertar un nodo a un arbol splay, entrandole como parametro una raiz, una llave,una plataforma, un usuario, una contrasena y una bandera
 retorna un nodo
 No tiene restricciones*/
-struct Nodo *insertar(struct Nodo *raiz, int llave_insertar,char* llave_char,char const nombre[20]){
+struct Nodo *insertar(struct Nodo *raiz, int llave_insertar,char const nombre[20],char* llave_char){
 	//char* llave_Char= (char*)llave_insertar;
 	// Si el arbol no existe
     if (raiz== NULL){
