@@ -76,7 +76,7 @@ int main(int argc , char *argv[])
 		//Recibe mensajes del cliente
 		while( (read_size = recv(client_sock , client_message, 2000 , 0)) > 0 )
 		{	
-			if(directionFinder(client_message) != compareNoExiste)
+			if(splayTreeFinder(client_message) != compareNoExiste)
 			{
 				write(client_sock ,splayTreeFinder(client_message) , strlen(splayTreeFinder(client_message)));	
 				puts("IP encontrado");
@@ -139,13 +139,12 @@ char* splayTreeFinder(char msg[])
 	cout<<raiz->nombre<<endl;
 	cout<<nombreRecibido<<endl;
 	
-	if (strcmp(raiz->nombre,nombreRecibido) == 0){
+	if (raiz->nombre == nombreRecibido){
 		cout<<"¡Encontrado!"<<endl;
 		wordAntonym = raiz->llaveChar;
 	}
 	else{
-		cout<<raiz->nombre<<endl;
-		cout<<"Esa llave no existe\n"<<endl;
+		cout<<"No existe\n"<<endl;
 		wordAntonym="No existe\n";
 	}
 	return wordAntonym;
