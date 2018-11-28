@@ -21,6 +21,7 @@ $ ./serverResponde
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 char* directionFinder(char msg[]);
+char* irASiguienteServer(char message[]);
 int irASiguienteServer();
 
 int main(int argc , char *argv[])
@@ -75,15 +76,17 @@ int main(int argc , char *argv[])
 		{	
 			if(directionFinder(client_message) != compareNoExiste)
 			{
-				write(client_sock ,splayTreeFinder(client_message) , strlen(splayTreeFinder(client_message)));	
+				write(client_sock ,directionFinder(client_message) , strlen(directionFinder(client_message)));	
 				puts("Encontrado");       
 			}
 			else
 			{
 				//Aquí debería crearse el socket a otro servidor
 				puts("Redirigiendo...");
-				write(client_sock , "Me voy a otro servidor", strlen("Me voy a otro servidor"));
-				irASiguienteServer();
+				//write(client_sock , "Me voy a otro servidor", strlen("Me voy a otro servidor"));
+				char* ipEncontradaEnOtro = irASiguienteServer(client_message);
+				puts("Redireccionando de regreso...");
+				write(client_sock , ipEncontradaEnOtro, strlen(ipEncontradaEnOtro));
 			}    
 		}
 	
@@ -139,16 +142,17 @@ char* splayTreeFinder(char msg[])
 	return wordAntonym;
 }
 
-int irASiguienteServer(){
+char* irASiguienteServer(char message[]){
 	int sock;
 	struct sockaddr_in server;
-	char message[1000] , server_reply[2000];
+	char server_reply[2000];
+	char* replyReturn;
 	
-	//Crear socket
+	//Crear el socket
 	sock = socket(AF_INET , SOCK_STREAM , 0);
 	if (sock == -1)
 	{
-		printf("No se pudo crear el socket");
+		printf("No se pudo crear socket");
 	}
 	puts("Socket creado");
 	
@@ -156,39 +160,38 @@ int irASiguienteServer(){
 	server.sin_family = AF_INET;
 	server.sin_port = htons( 8880 );
 
-	//Conectarse al servidor remoto
+	//Conextar a servidor remoto
 	if (connect(sock , (struct sockaddr *)&server , sizeof(server)) < 0)
 	{
-		perror("La conexion fallo. Error");
-		return 1;
+		perror("Fallo la conexion. Error");
+		return "";
 	}
 	
 	puts("Conectado\n");
-	
-	//Mantenerse conectado con el servidor
-	while(1)
+	int x = 1;
+	//Mantiene la comunicación con el servidor
+	while(x == 1)
 	{
-		printf("EIntroduzca el mensaje : ");
-		scanf("%s" , message);
-		
-		//Enviar el mensaje
+		//Envía el mensaje
 		if( send(sock , message , strlen(message) , 0) < 0)
 		{
-			puts("Fallo el envio");
-			return 1;
+			puts("Fallo envio");
+			return "";
 		}
 		
-		//Obtener la respuesta del servidor
+		//Recibe una respuesta del servidor
 		if( recv(sock , server_reply , 2000 , 0) < 0)
 		{
-			puts("recv fallo");
+			puts("Fallo recv");
 			break;
 		}
 		
-		puts("Respuesta del server :");
+		//puts("Server reply :");
 		puts(server_reply);
+		x = 0;
+		replyReturn = server_reply;
 	}
 	
 	close(sock);	
-	return 0;
+	return replyReturn;
 }

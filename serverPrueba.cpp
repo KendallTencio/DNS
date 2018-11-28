@@ -74,11 +74,12 @@ int main(int argc , char *argv[])
 		puts("Conexion aceptada");
 
 		//Recibe mensajes del cliente
-		while( (read_size = recv(client_sock , client_message, 2000 , 0)) > 0 )
+		while( (read_size = recv(client_sock , client_message, 2000, 0)) > 0 )
 		{	
-			if(splayTreeFinder(client_message) != compareNoExiste)
+			cout<<"ClienteMessage: "<<client_message<<endl;
+			if(directionFinder(client_message) != compareNoExiste)
 			{
-				write(client_sock ,splayTreeFinder(client_message) , strlen(splayTreeFinder(client_message)));	
+				write(client_sock ,directionFinder(client_message) , strlen(directionFinder(client_message)));	
 				puts("IP encontrado");
 			}
 			else
@@ -123,6 +124,7 @@ char* directionFinder(char msg[])
 
 char* splayTreeFinder(char msg[])
 {
+	cout<<msg<<endl;
 	const char* nombreRecibido = msg;
 	char* wordAntonym="No existe\n";
 	const char* nombre1 = "youtube.com";
@@ -139,7 +141,7 @@ char* splayTreeFinder(char msg[])
 	cout<<raiz->nombre<<endl;
 	cout<<nombreRecibido<<endl;
 	
-	if (raiz->nombre == nombreRecibido){
+	if (strcmp(raiz->nombre, msg) == 0){
 		cout<<"¡Encontrado!"<<endl;
 		wordAntonym = raiz->llaveChar;
 	}

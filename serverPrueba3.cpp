@@ -57,52 +57,54 @@ int main(int argc , char *argv[])
 	//Listen
 	listen(socket_desc , 3);
 	
-	//Accept and incoming connection
-	puts("Waiting for incoming connections...");
-	c = sizeof(struct sockaddr_in);
+	while(1){
+	  //Accept and incoming connection
+	  puts("Waiting for incoming connections...");
+	  c = sizeof(struct sockaddr_in);
 	
-	//accept connection from an incoming client
-	client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
-	if (client_sock < 0)
-	{
-		perror("accept failed");
-		return 1;
-	}
-	puts("Connection accepted");
+	  //accept connection from an incoming client
+	  client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
+	  if (client_sock < 0)
+      {
+		  perror("accept failed");
+		  return 1;
+	  }
+	  puts("Connection accepted");
 	
-	    //Recibe mensajes del cliente
-    while( (read_size = recv(client_sock , client_message, 2000 , 0)) > 0 )
-    {	
-		if(directionFinder(client_message) != compareNoExiste)
-		{
-			write(client_sock ,directionFinder(client_message) , strlen(directionFinder(client_message)));	
-            puts("Encontrado");
+	      //Recibe mensajes del cliente
+      while( (read_size = recv(client_sock , client_message, 2000 , 0)) > 0 )
+      {	
+		  if(directionFinder(client_message) != compareNoExiste)
+		  {
+			  write(client_sock ,directionFinder(client_message) , strlen(directionFinder(client_message)));	
+              puts("Encontrado");
+              
             
-	    }
-	    else
-	    {
-            //Aquí debería crearse el socket a otro servidor
-            puts("Redirigiendo...");
-			write(client_sock , "No se encontró", strlen("No se encontró"));
-		}    
+	      }
+	      else
+	      {
+              //Aquí debería crearse el socket a otro servidor
+                puts("Redirigiendo...");
+	  	   	    write(client_sock , "No se encontró IP", strlen("No se encontró IP"));
+		  }    
+      }
+	
+	  if(read_size == 0)
+	  {
+		  puts("Client disconnected");
+		  fflush(stdout);
+	  }
+	  else if(read_size == -1)
+	  {
+		  perror("recv failed");
+	  }
     }
-	
-	if(read_size == 0)
-	{
-		puts("Client disconnected");
-		fflush(stdout);
-	}
-	else if(read_size == -1)
-	{
-		perror("recv failed");
-	}
-	
 	return 0;
 }
 
 char* directionFinder(char msg[])
 {
-	char* wordList1[]=		 {"Google.com\n","Youtube.com\n","Facebook.com\n"};
+	char* wordList1[]=		 {"AlemaniaHoy.com\n","xcomevolution.com\n","Nasa.com\n"};
 	char* wordAntonymList1[]={"123.46.023\n","127.454.923\n","234.123.12.1\n"};
 	char* wordAntonym="No existe\n";
 	for (int i = 0;i<3;i++)

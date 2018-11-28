@@ -40,7 +40,7 @@ int main(int argc , char *argv[])
 	//keep communicating with server
 	while(1)
 	{
-		printf("Introduzca mensaje : ");
+		printf("Introduzca página : ");
 		scanf("%s" , message);
 		
 		//Send some data
